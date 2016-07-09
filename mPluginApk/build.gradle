@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "com.android.pluginapk"
+        minSdkVersion 11
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // 忽略编译 lint 报错，必须加上。
+    lintOptions {
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("mpluginapk.jks")
+            storePassword "huaihuai2016"
+            keyAlias "china"
+            keyPassword "huaihuai2016"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            // 是否进行混淆
+            minifyEnabled false
+            // 混淆文件的位置
+            proguardFiles 'proguard-rules.txt'
+            // 编译自定义配置
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        output.outputFile = new File(outputFile.parent,
+                                outputFile.name.replace("-release", "-" + defaultConfig.versionName)
+                        )
+                    }
+                }
+            }
+        }
+        dexOptions {
+            incremental false
+        }
+    }
+
+    // http://www.jianshu.com/p/b0b8e0b1a949
+    useLibrary 'org.apache.http.legacy'
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+}

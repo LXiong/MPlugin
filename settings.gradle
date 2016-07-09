@@ -1,0 +1,1 @@
+include ':mPluginApk', ':mPlugin', ':app'
