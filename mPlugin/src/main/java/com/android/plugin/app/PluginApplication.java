@@ -15,18 +15,12 @@ import java.lang.reflect.Method;
  * @email: cswangduo@163.com
  * @date: 16/7/4
  */
-public class MyApplication extends Application {
+public class PluginApplication {
 
     private static boolean initSuccess = false; // 第三方是否 配置了application
     private static boolean copySuccess = false; // apk包是否存在于用户手机中
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        init(getApplicationContext());
-    }
-
-    private void init(Context mContext) {
+    public void init(Context mContext) {
         initSuccess = true;
         copySuccess = ApkManager.getInstance().createApkFile(mContext);
         initApplication(mContext);

@@ -1,5 +1,8 @@
 package com.android.pluginapk.net;
 
+import com.android.pluginapk.exception.NetworkException;
+import com.android.pluginapk.util.TaskResultCode;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -9,6 +12,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 
+/**
+ * @author wangduo
+ * @description: ${todo}
+ * @email: cswangduo@163.com
+ * @date: 16/7/9
+ */
 public class NetUtils {
 
     private static int MAX_CON_TIMEOUT = 5000;
@@ -64,7 +73,7 @@ public class NetUtils {
      * @throws Exception
      */
     public static String doHttpPostRequest(final String url, final String content)
-            throws Exception {
+            throws NetworkException {
         String ret = null;
         HttpResponse httpResponse;
         HttpClient httpclient = new DefaultHttpClient();
@@ -82,7 +91,7 @@ public class NetUtils {
                 ret = EntityUtils.toString(httpResponse.getEntity());
             }
         } catch (Exception e) {
-            throw new Exception(null, e);
+            throw new NetworkException(TaskResultCode.HTTP_ERROR, e.getMessage());
         }
         return ret;
     }

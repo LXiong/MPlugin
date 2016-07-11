@@ -57,14 +57,8 @@ public class FileManager {
      * @return
      */
     public String getFilePathInPhone(Context mContext, String fileName) {
-        String dirPath = mContext.getFilesDir() + "/" + fileName;
-        File dir = new File(dirPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        return dirPath + fileName;
+        return mContext.getFilesDir() + "/" + fileName;
     }
-
 
     /**
      * SD卡中剩余空间是否足够？大于1M

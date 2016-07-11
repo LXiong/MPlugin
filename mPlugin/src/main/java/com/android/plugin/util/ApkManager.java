@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,12 +23,12 @@ public class ApkManager {
     private String apkPackageName; // apk包名
     private String apkVersionName; // apk版本号
     private String apkPath; // apk包保存的完整路径;
-    private final String MD5 = "ca5e2fc2bde560acccc05be347309ff4"; // assets下apk的md5值
+    private final String MD5 = "bc30639cffdbc571887793a8d2d23a33"; // assets下apk的md5值
 
     // **************** 用户机器中存放的apk包的名字 ****************
-    private final String srcApkName = "pluginapk-1.0.0.apk"; // assets下apk的名字
-    private final String desApkName = "pluginapk.apk"; // 存储在本地时apk的名字
-    private final String newApkName = "pluginapk-new.apk"; // 更新包的名字
+    private final String srcApkName = "mPluginApk-1.0.0.apk"; // assets下apk的名字
+    private final String desApkName = "mPluginApk.apk"; // 存储在本地时apk的名字
+    private final String newApkName = "mPluginApk-new.apk"; // 更新包的名字
     // **************** 用户机器中存放的apk包的名字 ****************
 
     private ApkManager() {
@@ -200,15 +201,13 @@ public class ApkManager {
             FileManager fileManager = FileManager.getInstance();
             if (fileManager.hasEnoughInternalMemory()) { // 手机内存空间足够大
                 LogHelper.e("ApkManager", "phone has enough storage");
-                apkPath = FileManager.getInstance().getFilePathInPhone(mContext, desApkName);
-                fos = mContext.openFileOutput(desApkName, Context.MODE_PRIVATE);
+                apkPath = fileManager.getFilePathInPhone(mContext, desApkName);
             } else {
                 if (fileManager.isSDExist()) {
                     if (fileManager.hasEnoughExternalMemory()) {
                         // sd存在且剩余空间足够大
                         LogHelper.e("ApkManager", "sd has enough storage");
                         apkPath = fileManager.getFilePathInSD(desApkName);
-                        fos = new FileOutputStream(apkFile);
                     } else {
                         LogHelper.e("ApkManager", "sd has no enough storage");
                     }
@@ -216,14 +215,16 @@ public class ApkManager {
                     LogHelper.e("ApkManager", "sd unAvailable");
                 }
             }
-            if (null == apkPath) { // 手机内存不足
+            if (null == apkPath) { // sd卡内存不足
                 return false;
             }
             apkFile = new File(apkPath);
-            if (!apkFile.exists()) {
+            if (!apkFile.exists() || !apkFile.isFile()) {
+                apkFile.delete();
                 temp = apkFile.createNewFile();
                 LogHelper.e("ApkManager", "file don't exist, create :" + temp);
             }
+            fos = new FileOutputStream(apkFile);
             is = mContext.getAssets().open(srcApkName);
             if (!read(is, fos)) {
                 temp = apkFile.delete();
@@ -240,8 +241,10 @@ public class ApkManager {
                 }
             }
             return true;
-        } catch (Exception e) {
-            LogHelper.e("ApkManager", "error occurs... detail:" + e.toString());
+        } catch (FileNotFoundException e) {
+            LogHelper.e("ApkManager", "FileNotFoundException occurs... detail:" + e.toString());
+        } catch (IOException e) {
+            LogHelper.e("ApkManager", "IOException occurs... detail:" + e.toString());
         } finally {
             try {
                 if (null != is) {

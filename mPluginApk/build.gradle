@@ -5,11 +5,13 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
+        buildConfigField "String", "ADDRESS", '"http://pay.ghwx.com.cn:8081/GameSdkApi/"'
+
         applicationId "com.android.pluginapk"
         minSdkVersion 11
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
 
     // 忽略编译 lint 报错，必须加上。

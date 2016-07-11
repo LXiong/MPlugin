@@ -30,6 +30,39 @@ import java.util.UUID;
  */
 public class UtilCom {
 
+    /**
+     * @param result
+     * @param showMsg show the msg or not
+     * @return
+     */
+    public static boolean checkTaskError(TaskResult<?> result, boolean showMsg) {
+        if (result == null) {
+            return false;
+        }
+
+        switch (result.getRetCode()) {
+            case OK:
+                return true;
+            case NO_CONNECTION:
+                if (showMsg) {
+                }
+                return false;
+            case PARSE_ERROR:
+                if (showMsg) {
+                }
+                return false;
+            case TIME_OUT:
+                if (showMsg) {
+                }
+                return false;
+            default:
+                if (showMsg) {
+
+                }
+                return false;
+        }
+    }
+
     public static String getFileMd5(String fullPath) {
         File file = new File(fullPath);
         if (file.exists() && file.isFile()) {

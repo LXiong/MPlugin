@@ -1,7 +1,9 @@
-package com.android.pluginapk;
+package com.android.pluginapk.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +12,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.pluginapk.center.ControlCenter;
 import com.android.pluginapk.core.ResManager;
+import com.android.pluginapk.exception.NetworkException;
+import com.android.pluginapk.util.TaskResult;
+import com.android.pluginapk.util.TryCatchWrapRunner;
 import com.android.pluginapk.util.UtilCom;
 import com.android.pluginapk.util.UtilNetwork;
 import com.android.pluginapk.util.UtilPhone;
+
+import java.text.ParseException;
 
 /**
  * @author wangduo
@@ -30,6 +38,10 @@ public class IntegralListActivity {
     private String apkPath;
 
     private ListView listview;
+
+    private ControlCenter center;
+
+    private AlertDialog loadingDlg;
 
     /**
      * 初始化
@@ -50,6 +62,7 @@ public class IntegralListActivity {
     }
 
     private int startSdkPlugin(Activity proxyActivity, String apkPath) {
+        center = ControlCenter.getInstance(proxyActivity.getApplicationContext());
         this.proxyActivity = proxyActivity;
         this.apkPath = apkPath;
         setContentView();
@@ -89,5 +102,53 @@ public class IntegralListActivity {
 //        btn_confirm.setPadding(30, 10, 30, 10);
     }
 
+    public void getWorkkey() {
+        showLoadingDialog("正在加载中...");
+        AsyncTask<Object, Object, TaskResult<?>> task = new AsyncTask<Object, Object, TaskResult<?>>() {
+
+            @Override
+            protected TaskResult<?> doInBackground(Object... params) {
+                // TODO Auto-generated method stub
+
+                TryCatchWrapRunner<Object> runner = new TryCatchWrapRunner<Object>() {
+                    @Override
+                    public Object run() throws NetworkException, ParseException {
+                        // TODO Auto-generated method stub
+                        return center.getPhoneId();
+                    }
+                };
+                return runner.excute();
+            }
+
+            protected void onPostExecute(TaskResult<?> mTaskResult) {
+                hideLoadingDialog();
+                if (UtilCom.checkTaskError(mTaskResult, true)) {
+                    return;
+                }
+
+            }
+        };
+        task.execute(new Object());
+    }
+
+    protected void showLoadingDialog(String msg) {
+        if (null == loadingDlg) {
+            loadingDlg = new AlertDialog.Builder(proxyActivity).create();
+        }
+        if (loadingDlg.isShowing()) {
+            return;
+        }
+        loadingDlg.setMessage(msg);
+        loadingDlg.setContentView(null);
+        loadingDlg.setCanceledOnTouchOutside(false);
+        loadingDlg.show();
+    }
+
+    protected void hideLoadingDialog() {
+        if (null != loadingDlg) {
+            loadingDlg.dismiss();
+            loadingDlg = null;
+        }
+    }
 
 }
